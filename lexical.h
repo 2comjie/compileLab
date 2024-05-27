@@ -309,8 +309,6 @@ class Lexical {
         std::vector<std::pair<int, std::string>> tokens;
         size_t pos = 0;
         while (pos < code.size()) {
-            while (pos < code.size() && std::isspace(code[pos])) pos++;
-            if (pos == code.size()) break;
             Node* n = dfa->start;
             size_t startPos = pos;
             int type = 0;

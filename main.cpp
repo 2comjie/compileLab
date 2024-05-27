@@ -8,7 +8,7 @@ enum TokenType {
     Number,
     Identifier,
     Separator,
-    Operator
+    Operator,
 };
 
 const std::set<std::string> keywords = {
@@ -34,12 +34,13 @@ std::string readFile(const std::string& filename) {
 int main(int argc, char* argv[]) {
     if (argc <= 1)
         return 1;
-    const std::string numberRgex = "(+|-|@)((0|1|2|3|4|5|6|7|8|9).|.|(0|1|2|3|4|5|6|7|8|9))(0|1|2|3|4|5|6|7|8|9)*";
+    const std::string numberRgex = "(+|-|@)((0|1|2|3|4|5|6|7|8|9)*.(0|1|2|3|4|5|6|7|8|9)|(0|1|2|3|4|5|6|7|8|9))(0|1|2|3|4|5|6|7|8|9)*";  // (+|-|@)(d*.d|d)(d)*
     const std::string identifierRgex = "(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|_)(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|_|0|1|2|3|4|5|6|7|8|9)*";
     const std::string separatorRgex = ",|;|{|}|[|]|\\(|\\)";
     const std::string operatorRgex = "+|-|\\*|/|%|&|\\||=|+=|-=|\\*=|/=|==|++|--|<|>|<=|>=|&=|%=|\\|=|!=";
 
     Lexical lexical = Lexical({{numberRgex, TokenType::Number}, {identifierRgex, TokenType::Identifier}, {separatorRgex, TokenType::Separator}, {operatorRgex, TokenType::Operator}});
+
     std::string code = readFile(argv[1]);
     auto tokens = lexical.scan(code);
     for (auto it : tokens) {
@@ -54,8 +55,6 @@ int main(int argc, char* argv[]) {
             std::cout << "(分隔符" << "," << it.second << ")" << std::endl;
         else if (it.first == TokenType::Operator)
             std::cout << "(运算符" << "," << it.second << ")" << std::endl;
-        else
-            std::cout << "(未知" << "," << it.second << ")" << std::endl;
     }
     return 0;
 }

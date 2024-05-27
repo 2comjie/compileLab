@@ -1,9 +1,9 @@
 #ifndef __UTIL_H__
 #define __UTIL_H__
+#include <iostream>
 #include <stack>
 #include <string>
 #include <vector>
-
 class Rgex {
    public:
     struct RgexToken {
@@ -45,6 +45,8 @@ class Rgex {
             RgexToken token = tokens[i];
             if (token.op) {
                 if (i + 1 < tokens.size() && token.c != '(' && tokens[i + 1].c != ')' && token.c != '|' && tokens[i + 1].c != '|' && tokens[i + 1].c != '*')
+                    tokens.insert(tokens.begin() + ++i, RgexToken('.', true));
+                else if (i + 1 < tokens.size() && !tokens[i + 1].op && token.c != '(' && token.c != '|')
                     tokens.insert(tokens.begin() + ++i, RgexToken('.', true));
             } else {
                 if (i + 1 < tokens.size())
