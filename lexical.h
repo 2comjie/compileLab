@@ -279,13 +279,14 @@ class Lexical {
     };
 
    private:
-    DFA* dfa;
+    DFA* dfa = nullptr;
+    NFA* nfa = nullptr;
 
    public:
     Lexical(std::vector<std::pair<std::string, int>> rgexList) : dfa(nullptr) {
         if (rgexList.size() == 0)
             exit(1);
-        NFA* nfa = NFA::rgexToNFA(rgexList[0].first, 1 << rgexList[0].second);
+        nfa = NFA::rgexToNFA(rgexList[0].first, 1 << rgexList[0].second);
         if (rgexList[0].second >= 32 || rgexList[0].second < 0)
             exit(1);
         for (size_t i = 1; i < rgexList.size(); ++i) {
@@ -299,10 +300,40 @@ class Lexical {
         }
 
         dfa = DFA::NFAtoDFA(nfa);
-        delete nfa;
     }
 
     ~Lexical() {
+        if (dfa != nullptr) {
+            std::stack<Node*> stack;
+            std::set<Node*> visited;
+            stack.push(dfa->start);
+            while (!stack.empty()) {
+                Node* n = stack.top();
+                stack.pop();
+                visited.insert(n);
+                for (auto e : n->edges)
+                    if (visited.find(e.second) != visited.end())
+                        stack.push(e.second);
+                delete n;
+            }
+            delete dfa;
+        }
+
+        if (nfa != nullptr) {
+            std::stack<Node*> stack;
+            std::set<Node*> visited;
+            stack.push(nfa->start);
+            while (!stack.empty()) {
+                Node* n = stack.top();
+                stack.pop();
+                visited.insert(n);
+                for (auto e : n->edges)
+                    if (visited.find(e.second) != visited.end())
+                        stack.push(e.second);
+                delete n;
+            }
+            delete nfa;
+        }
     }
 
     std::vector<std::pair<int, std::string>> scan(const std::string& code) {

@@ -56,5 +56,6 @@ int main(int argc, char* argv[]) {
         else if (it.first == TokenType::Operator)
             std::cout << "(运算符" << "," << it.second << ")" << std::endl;
     }
+
     return 0;
 }
