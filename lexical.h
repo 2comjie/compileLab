@@ -1,7 +1,6 @@
 #ifndef __LEXICAL_H__
 #define __LEXICAL_H__
 
-#include <bitset>
 #include <cmath>
 #include <iostream>
 #include <map>
@@ -169,6 +168,7 @@ class Lexical {
     class DFA {
        public:
         Node* start = nullptr;
+        std::set<Node*> ends;
 
        public:
         ~DFA() {
@@ -220,10 +220,92 @@ class Lexical {
                 }
             }
 
-            return new DFA(startNode);
+            DFA* dfa = new DFA(startNode);
+            simplify(dfa);
+            return dfa;
         }
 
        private:
+        static void simplify(DFA* dfa) {
+            std::set<Node*> terminationSet;
+            std::set<Node*> nonTerminalSet;
+            std::set<Node*> visited;
+            std::stack<Node*> stack;
+
+            stack.push(dfa->start);
+
+            while (!stack.empty()) {
+                Node* n = stack.top();
+                stack.pop();
+                visited.insert(n);
+
+                if (n->end)
+                    terminationSet.insert(n);
+                else
+                    nonTerminalSet.insert(n);
+                for (auto e : n->edges)
+                    if (visited.find(e.second) == visited.end())
+                        stack.push(e.second);
+            }
+
+            std::queue<std::set<Node*>> workList;
+            workList.push(terminationSet);
+            workList.push(nonTerminalSet);
+
+            bool done = false;
+            while (!done) {
+                done = true;
+                int n = workList.size();
+                while (n-- > 0) {
+                    auto set = workList.front();
+                    auto newSet = std::set<Node*>();
+                    Node* first = *(set.begin());
+                    for (auto b : set)
+                        if (!equivalent(first, b, workList))
+                            newSet.insert(b);
+
+                    if (newSet.size() > 0) {
+                        for (auto n : newSet)
+                            set.erase(n);
+                        workList.push(newSet);
+                        done = false;
+                    }
+                    workList.pop();
+                    workList.push(set);
+                }
+            }
+
+            // 根据集合重构dfa
+        }
+
+        // 状态a和状态b是否等价
+        static bool equivalent(Node* a, Node* b, std::queue<std::set<Node*>>& simplifiedSet) {
+            // a和b的每条边都指向同一个集合里的元素
+            for (auto c : NFA::charSet) {
+                Node* aNext = nullptr;
+                Node* bNext = nullptr;
+                auto it = a->edges.find(c);
+                if (it != a->edges.end())
+                    aNext = (*it).second;
+                it = b->edges.find(c);
+                if (it != b->edges.end())
+                    bNext = (*it).second;
+
+                int n = simplifiedSet.size();
+                while (n > 0) {
+                    auto set = simplifiedSet.front();
+                    simplifiedSet.pop();
+                    bool c = set.find(aNext) == set.end();
+                    bool d = set.find(bNext) == set.end();
+                    if (c ^ d)
+                        return false;
+                    n--;
+                    simplifiedSet.push(set);
+                }
+            }
+            return true;
+        }
+
         static std::set<Node*> epsilonClosure(const std::set<Node*>& inputSet) {
             std::set<Node*> resultSet;
             std::stack<Node*> stack;
