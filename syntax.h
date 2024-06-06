@@ -9,52 +9,6 @@
 #include <string>
 #include <vector>
 
-// struct ASTNode {
-//     virtual ~ASTNode() = default;
-// };
-
-// // 根节点
-// struct ASTProgram : ASTNode {
-//     std::vector<ASTNode*> statements;
-// };
-
-// // 表达式
-// struct ASTExpression : ASTNode {
-// };
-
-// // 函数
-// struct ASTFunction : ASTNode {
-//     std::string name;
-//     std::vector<ASTNode*> parameters;
-//     std::vector<ASTNode*> body;
-// };
-
-// // 赋值语句
-// struct ASTAssignment : ASTExpression {
-//     std::string variable;
-//     ASTExpression* expression;
-// };
-
-// // 算术运算表达式
-// struct ASTArithmetic : ASTExpression {
-//     std::string op;
-//     ASTExpression* left;
-//     ASTExpression* right;
-// };
-
-// // 逻辑运算节点
-// struct ASTLogical : ASTExpression {
-//     std::string op;
-//     ASTExpression* left;
-//     ASTExpression* right;
-// };
-
-// // 循环节点
-// struct ASTLoop : ASTNode {
-//     ASTExpression* condition;
-//     std::vector<ASTNode*> body;
-// };
-
 class Syntax {
    public:
     Syntax(const std::vector<std::pair<std::string, std::vector<std::string>>>& prods,
@@ -188,7 +142,7 @@ class Syntax {
                         }
                     }
                 } else {
-                    std::cout << "Syntax error: no production rule for (" << top << ", " << token << ")" << std::endl;
+                    std::cout << "Syntax error: no production rule for (" << top << ", " << tokens[index].second << ")" << std::endl;
                     // 尝试同步消费输入记号或跳过输入查看同步点
                     bool foundSync = false;
                     while (!stk.empty() && (!parseTable.at({stk.top(), token}).empty() && parseTable.at({stk.top(), token})[0] == "synch")) {
