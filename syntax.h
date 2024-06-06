@@ -154,7 +154,7 @@ class Syntax {
                     }
                 }
             } else {
-                std::cout << "Syntax error: invalid symbol " << top << std::endl;
+                std::cout << "Syntax error: invalid  " << tokens[index].second << std::endl;
                 return false;
             }
         }

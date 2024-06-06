@@ -50,6 +50,7 @@ std::string readFile(const std::string& filename) {
 
     std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
     file.close();
+
     return content;
 }
 
